@@ -2,7 +2,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const path = require('path');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const error = require('./routes/error');
@@ -20,7 +19,11 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useFindAndModify: false,
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use((req, res, next) => {
+  req.user = { _id: '5e6885497b97253a58391302' };
+  next();
+});
+
 app.use('/users', users);
 app.use('/cards', cards);
 app.use(error);
