@@ -1,7 +1,7 @@
 {
-  "name": "proekt12",
-  "version": "0.0.1",
-  "description": "Проектная работа 12",
+  "name": "proekt13",
+  "version": "0.0.2",
+  "description": "Проектная работа 13",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
