@@ -6,9 +6,7 @@ const bodyParser = require('body-parser');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const error = require('./routes/error');
-
-
-const { PORT = 3000 } = process.env;
+const port = process.env.PORT
 const app = express();
 
 /* парсер запросов */
@@ -16,7 +14,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /* подключаемся к базе */
-mongoose.connect('mongodb://localhost:27017/mestodb', {
+mongoose.connect(process.env.MONGODB_URL, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
@@ -35,6 +33,6 @@ app.use('/cards', cards);
 app.use(error);
 
 /* сообщаем порт */
-app.listen(PORT, () => {
-  console.log(`Используемый порт: ${PORT}`);
+app.listen(port, () => {
+  console.log(`Используемый порт: ${port}`);
 });
