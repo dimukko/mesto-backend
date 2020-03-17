@@ -13,7 +13,7 @@ const getCards = (req, res) => {
 const createCard = (req, res) => {
   const { name, link } = req.body;
   if (ObjectId.isValid(req.user._id)) {
-  Card.create({ name, link, owner: req.user._id, likes })
+  Card.create({ name, link, owner: req.user._id })
       .then(card => res.status(201).send({ data: card }))
       .catch(err => res.status(500).send({ message: `Произошла ошибка при создании карточки: ${err.message}` }));
     } else {

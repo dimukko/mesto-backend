@@ -85,12 +85,11 @@ const loginUser = (req, res) => {
 
 //обновить данные пользователя
 const updateUser = (req, res) => {
-  const {
-    name,
-    about
-  } = req.body;
+  const { name, about } = req.body;
+  const { _id: userId } = req.user;
+  const { id: userCardId } = req.params;
 
-  if (ObjectId.isValid(req.params.id)) {
+  if (ObjectId.isValid(req.params.id) && userId === userCardId) {
     User.findByIdAndUpdate(req.params.id, {
         name,
         about
@@ -112,6 +111,8 @@ const updateUser = (req, res) => {
         message: `Произошла ошибка при обновлении пользователя с id: ${req.params.id}`,
         error: err.message
       }));
+  } else if (userId !== userCardId) {
+    res.status(401).send({ message: 'Нужна авторизация' });
   } else {
     res.status(400).send({
       message: 'Неправильный формат id пользователя'
@@ -121,11 +122,11 @@ const updateUser = (req, res) => {
 
 //обновить аватарку пользователя
 const updateUserAvatar = (req, res) => {
-  const {
-    avatar
-  } = req.body;
+  const { avatar } = req.body;
+  const { _id: userId } = req.user;
+  const { id: userCardId } = req.params;
 
-  if (ObjectId.isValid(req.params.id)) {
+  if (ObjectId.isValid(req.params.id) && userId === userCardId) {
     User.findByIdAndUpdate(req.params.id, {
         avatar
       }, {
@@ -146,6 +147,8 @@ const updateUserAvatar = (req, res) => {
         message: `Произошла ошибка при обновлении аватара пользователя с id: ${req.params.id}`,
         error: err.message
       }));
+  } else if (userId !== userCardId) {
+    res.status(401).send({ message: 'Нужна авторизация' });
   } else {
     res.status(400).send({
       message: 'Неправильный формат id пользователя'
@@ -155,7 +158,10 @@ const updateUserAvatar = (req, res) => {
 
 //удалить пользователя
 const deleteUser = (req, res) => {
-  if (ObjectId.isValid(req.params.id)) {
+  const { _id: userId } = req.user;
+  const { id: userCardId } = req.params;
+
+  if (ObjectId.isValid(req.params.id) && userId === userCardId) {
     User.findByIdAndDelete(req.params.id)
       .then(user => {
         if (!user) {
@@ -171,6 +177,8 @@ const deleteUser = (req, res) => {
         message: `Произошла ошибка при удалении пользователя с id: ${req.params.id}`,
         error: err.message
       }));
+  } else if (userId !== userCardId) {
+    res.status(401).send({ message: 'Нужна авторизация' });
   } else {
     res.status(400).send({
       message: 'Неправильный формат id пользователя'
