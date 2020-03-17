@@ -14,5 +14,8 @@ module.exports = {
         "ecmaVersion": 2018
     },
     "rules": {
+      "no-console": "off",
+      "no-underscore-dangle": ["error", { "allow": ["_id"] }],
+      "max-len": "150"
     }
 };
