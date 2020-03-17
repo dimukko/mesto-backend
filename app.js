@@ -3,9 +3,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const auth = require('./middlewares/auth');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const error = require('./routes/error');
+const { loginUser, createUser } = require('./controllers/users');
 const port = process.env.PORT
 const app = express();
 
@@ -21,13 +23,11 @@ mongoose.connect(process.env.MONGODB_URL, {
   useUnifiedTopology: true
 });
 
-/* захардкодили пользователя, имитация авторизации */
-app.use((req, res, next) => {
-  req.user = { _id: '5e69db3ea6fd0b1ca81f9200' };
-  next();
-});
-
 /* роуты */
+app.post('/users/signin', loginUser);
+app.post('/users/signup', createUser);
+
+app.use(auth);
 app.use('/users', users);
 app.use('/cards', cards);
 app.use(error);
