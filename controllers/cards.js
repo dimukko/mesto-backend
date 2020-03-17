@@ -24,13 +24,21 @@ const createCard = (req, res) => {
 //удалить карточку по id
 const deleteCard = (req, res) => {
   if (ObjectId.isValid(req.params.id)) {
-  Card.findByIdAndDelete(req.params.id)
+    Card.findById(req.params.id)
+    .then(card => {
+      if (card.owner._id.toString() !== req.params.id) {
+        return res.status(401).send({ message: 'Нужна авторизация' });
+      }
+      return Card.findByIdAndDelete(req.params.id)
       .then(card => {
         if (!card) {
           return res.status(404).send({ message: `Карточки с id: ${req.params.id} не существует`})
         }
-      res.send({ data: card })})
+      res.send({ data: card });
+    })
       .catch(err => res.status(500).send({ message: `Произошла ошибка при удалении карточки: ${err.message}` }));
+  })
+    .catch(err => res.status(404).send({ message: err.message }));
     } else {
         res.status(400).send({ message: 'Неправильный формат id карточки' });
       }
