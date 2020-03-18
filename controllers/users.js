@@ -2,6 +2,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { messages } = require('../tools/messages');
 
 //отобразить всех пользователей
 const getUsers = (req, res) => {
@@ -15,7 +16,7 @@ const getUserById = (req, res) => {
   User.findById(req.params.id)
     .then(user => res.send({ data: user }))
     .catch(err => res.status(500).send({
-      message: `Произошла ошибка при запросе пользователя с id: ${req.params.id}`,
+      message: `${messages.user.id.isNotFound}: ${req.params.id}`,
       error: err.message
     }));
 };
@@ -38,9 +39,9 @@ const createUser = (req, res) => {
       email,
       password: hash
     }))
-    .then(user => res.status(201).send({ _id: user._id, email: user.email, message: 'Пользователь успешно создан' }))
+    .then(user => res.status(201).send({ _id: user._id, email: user.email, message: messages.registration.isSuccessful }))
     .catch(err => res.status(500).send({
-      message: `Произошла ошибка при создании пользователя`,
+      message: messages.registration.isFail,
       error: err.message
     }));
 };
@@ -51,7 +52,7 @@ const loginUser = (req, res) => {
   return User.findUserByCredentials(email, password)
     .then(user => res.send({
       token: jwt.sign({ _id: user._id }, process.env.JWT_KEY, { expiresIn: '7d' }),
-      message: 'Успешная авторизация'
+      message: messages.authorization.isSuccessful
     }))
     .catch(err => res.status(401).send({ error: err.message }));
 };
@@ -62,7 +63,7 @@ const updateUser = (req, res) => {
   User.findByIdAndUpdate(req.params.id, { name, about }, { new: true, runValidators: true })
     .then(user => res.status(201).send({ data: user }))
     .catch(err => res.status(500).send({
-      message: `Произошла ошибка при обновлении пользователя с id: ${req.params.id}`,
+      message: `${messages.user.isFail}: ${req.params.id}`,
       error: err.message
     }));
 };
@@ -73,7 +74,7 @@ const updateUserAvatar = (req, res) => {
   User.findByIdAndUpdate(req.params.id, { avatar }, { new: true, runValidators: true })
     .then(user => res.status(201).send({ data: user }))
     .catch(err => res.status(500).send({
-      message: `Произошла ошибка при обновлении пользователя с id: ${req.params.id}`,
+      message: `${messages.user.isFail}: ${req.params.id}`,
       error: err.message
     }));
 };
@@ -83,7 +84,7 @@ const deleteUser = (req, res) => {
   User.findByIdAndDelete(req.params.id)
     .then(user => res.status(201).send({ data: user }))
     .catch(err => res.status(500).send({
-      message: `Произошла ошибка при удалении пользователя с id: ${req.params.id}`,
+      message: `${messages.user.isFail}: ${req.params.id}`,
       error: err.message
     }));
 };

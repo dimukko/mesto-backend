@@ -3,7 +3,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const auth = require('./middlewares/auth');
+const { auth } = require('./middlewares/auth');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const error = require('./routes/error');
