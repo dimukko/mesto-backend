@@ -7,12 +7,8 @@ const User = require('../models/user');
 //отобразить всех пользователей
 const getUsers = (req, res) => {
   User.find({})
-    .then(users => res.send({
-      data: users
-    }))
-    .catch(err => res.status(500).send({
-      message: err.message
-    }));
+    .then(users => res.send({ data: users }))
+    .catch(err => res.status(500).send({ message: err.message }));
 };
 
 //найти пользователя по id
@@ -21,22 +17,16 @@ const getUserById = (req, res) => {
     User.findById(req.params.id)
       .then(user => {
         if (!user) {
-          return res.status(404).send({
-            message: `Пользователя с id: ${req.params.id} не существует`
-          })
+          return res.status(404).send({ message: `Пользователя с id: ${req.params.id} не существует` })
         }
-        res.send({
-          data: user
-        });
+        res.send({ data: user });
       })
       .catch(err => res.status(500).send({
         message: `Произошла ошибка при запросе пользователя с id: ${req.params.id}`,
         error: err.message
       }));
   } else {
-    res.status(400).send({
-      message: 'Неправильный формат id пользователя'
-    });
+    res.status(400).send({ message: 'Неправильный формат id пользователя' });
   }
 };
 
@@ -74,12 +64,10 @@ const loginUser = (req, res) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      res.send({
-        token: jwt.sign({ _id: user._id }, process.env.JWT_KEY, { expiresIn: '7d' }),
+      res.send({ token: jwt.sign({ _id: user._id }, process.env.JWT_KEY, { expiresIn: '7d' })
       });
     })
-    .catch((err) => {
-      res.status(401).send({ error: err.message });
+    .catch((err) => { res.status(401).send({ error: err.message });
     });
 };
 
@@ -90,22 +78,12 @@ const updateUser = (req, res) => {
   const { id: userCardId } = req.params;
 
   if (ObjectId.isValid(req.params.id) && userId === userCardId) {
-    User.findByIdAndUpdate(req.params.id, {
-        name,
-        about
-      }, {
-        new: true,
-        runValidators: true
-      })
+    User.findByIdAndUpdate(req.params.id, { name, about }, { new: true, runValidators: true })
       .then(user => {
         if (!user) {
-          return res.status(404).send({
-            message: `Пользователя с id: ${req.params.id} не существует`
-          })
+          return res.status(404).send({ message: `Пользователя с id: ${req.params.id} не существует` })
         }
-        res.send({
-          data: user
-        });
+        res.send({ data: user });
       })
       .catch(err => res.status(500).send({
         message: `Произошла ошибка при обновлении пользователя с id: ${req.params.id}`,
@@ -114,9 +92,7 @@ const updateUser = (req, res) => {
   } else if (userId !== userCardId) {
     res.status(401).send({ message: 'Нужна авторизация' });
   } else {
-    res.status(400).send({
-      message: 'Неправильный формат id пользователя'
-    });
+    res.status(400).send({ message: 'Неправильный формат id пользователя' });
   }
 };
 
@@ -127,32 +103,21 @@ const updateUserAvatar = (req, res) => {
   const { id: userCardId } = req.params;
 
   if (ObjectId.isValid(req.params.id) && userId === userCardId) {
-    User.findByIdAndUpdate(req.params.id, {
-        avatar
-      }, {
-        new: true,
-        runValidators: true
-      })
+    User.findByIdAndUpdate(req.params.id, { avatar }, { new: true, runValidators: true })
       .then(user => {
         if (!user) {
-          return res.status(404).send({
-            message: `Пользователя с id: ${req.params.id} не существует`
-          })
+          return res.status(404).send({ message: `Пользователя с id: ${req.params.id} не существует` })
         }
-        res.send({
-          data: user
-        });
+        res.send({ data: user });
       })
       .catch(err => res.status(500).send({
-        message: `Произошла ошибка при обновлении аватара пользователя с id: ${req.params.id}`,
+        message: `Произошла ошибка при обновлении пользователя с id: ${req.params.id}`,
         error: err.message
       }));
   } else if (userId !== userCardId) {
     res.status(401).send({ message: 'Нужна авторизация' });
   } else {
-    res.status(400).send({
-      message: 'Неправильный формат id пользователя'
-    });
+    res.status(400).send({ message: 'Неправильный формат id пользователя' });
   }
 };
 
@@ -165,13 +130,9 @@ const deleteUser = (req, res) => {
     User.findByIdAndDelete(req.params.id)
       .then(user => {
         if (!user) {
-          return res.status(404).send({
-            message: `Пользователя с id: ${req.params.id} не существует`
-          })
+          return res.status(404).send({ message: `Пользователя с id: ${req.params.id} не существует` })
         }
-        res.send({
-          message: `Пользователь успешно удалён: ${user.name}`
-        });
+        res.send({ message: `Пользователь успешно удалён: ${user.name}` });
       })
       .catch(err => res.status(500).send({
         message: `Произошла ошибка при удалении пользователя с id: ${req.params.id}`,
@@ -180,9 +141,7 @@ const deleteUser = (req, res) => {
   } else if (userId !== userCardId) {
     res.status(401).send({ message: 'Нужна авторизация' });
   } else {
-    res.status(400).send({
-      message: 'Неправильный формат id пользователя'
-    });
+    res.status(400).send({ message: 'Неправильный формат id пользователя' });
   }
 };
 
