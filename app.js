@@ -8,7 +8,10 @@ const users = require('./routes/users');
 const cards = require('./routes/cards');
 const error = require('./routes/error');
 const { loginUser, createUser } = require('./controllers/users');
-const port = process.env.PORT
+const settings = require('./appconfig');
+
+
+const port = settings.PORT;
 const app = express();
 
 /* парсер запросов */
@@ -16,16 +19,16 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /* подключаемся к базе */
-mongoose.connect(process.env.MONGODB_URL, {
+mongoose.connect(settings.MONGODB_URL, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 });
 
 /* роуты */
-app.post('/users/signin', loginUser);
-app.post('/users/signup', createUser);
+app.post('/signin', loginUser);
+app.post('/signup', createUser);
 
 app.use(auth);
 app.use('/users', users);

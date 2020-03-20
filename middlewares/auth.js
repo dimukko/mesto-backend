@@ -1,20 +1,20 @@
 const jwt = require('jsonwebtoken');
 const { messages } = require('../tools/messages');
+const settings = require('../appconfig');
 
 const handleAuthError = (res) => {
   res
     .status(401)
     .send({
-      message: messages.authorization.isFailed
+      message: messages.authorization.isFailed,
     });
 };
 
-//достаёт токен из заголовка
-const extractBearerToken = (header) => {
-  return header.replace('Bearer ', '');
-};
+// достаёт токен из заголовка
+const extractBearerToken = (header) => header.replace('Bearer ', '');
 
-//авторизация и запись пэйлоуда в запрос
+// авторизация и запись пэйлоуда в запрос
+// eslint-disable-next-line consistent-return
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
@@ -26,7 +26,7 @@ const auth = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, process.env.JWT_KEY);
+    payload = jwt.verify(token, settings.JWT_KEY);
   } catch (err) {
     return handleAuthError(res);
   }
@@ -36,4 +36,4 @@ const auth = (req, res, next) => {
   next();
 };
 
-module.exports = { auth }
+module.exports = { auth };
