@@ -10,19 +10,17 @@ const handleAuthError = (res) => {
     });
 };
 
-// достаёт токен из заголовка
-const extractBearerToken = (header) => header.replace('Bearer ', '');
+const extractToken = (header) => header.replace('jwt=', '');
 
 // авторизация и запись пэйлоуда в запрос
-// eslint-disable-next-line consistent-return
 const auth = (req, res, next) => {
-  const { authorization } = req.headers;
+  const authorization = req.headers.cookie;
 
-  if (!authorization || !authorization.startsWith('Bearer ')) {
+  if (!authorization || !authorization.startsWith('jwt=')) {
     return handleAuthError(res);
   }
 
-  const token = extractBearerToken(authorization);
+  const token = extractToken(authorization);
   let payload;
 
   try {
@@ -33,7 +31,7 @@ const auth = (req, res, next) => {
 
   req.user = payload;
 
-  next();
+  return next();
 };
 
 module.exports = { auth };

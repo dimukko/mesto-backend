@@ -51,13 +51,27 @@ const createUser = (req, res) => {
 };
 
 // авторизация пользователя
-const loginUser = (req, res) => {
+/* const loginUser = (req, res) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => res.send({
       token: jwt.sign({ _id: user._id }, settings.JWT_KEY, { expiresIn: '7d' }),
       message: messages.authorization.isSuccessful,
     }))
+    .catch((err) => res.status(401).send({ error: err.message }));
+}; */
+
+const loginUser = (req, res) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      res.cookie('jwt', jwt.sign({ _id: user._id }, settings.JWT_KEY), {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      });
+      res.send({ message: messages.authorization.isSuccessful });
+    })
     .catch((err) => res.status(401).send({ error: err.message }));
 };
 
