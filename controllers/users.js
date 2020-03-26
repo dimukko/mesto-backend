@@ -6,13 +6,6 @@ const { messages } = require('../tools/messages');
 const settings = require('../appconfig');
 const NotFoundError = require('../errors/notFound');
 
-const checkUserAndSend = (user, req, res) => {
-  if (!user) {
-    return res.status(404).send({ message: `${messages.user.id.isNotFound}: ${req.params.id}` });
-  }
-  return res.send({ data: user });
-};
-
 // отобразить всех пользователей
 const getUsers = (req, res) => {
   User.find({})
@@ -23,11 +16,9 @@ const getUsers = (req, res) => {
 // найти пользователя по id
 const getUserById = (req, res) => {
   User.findById(req.params.id)
-    .then((user) => checkUserAndSend(user, req, res))
-    .catch((err) => res.status(500).send({
-      message: `${messages.user.id.isNotFound}: ${req.params.id}`,
-      error: err.message,
-    }));
+    .orFail(() => new NotFoundError(`${messages.user.id.isNotFound}: ${req.params.id}`))
+    .then((user) => res.send({ data: user }))
+    .catch((err) => res.status(err.statusCode || 500).send({ message: err.message }));
 };
 
 // создать пользователя
@@ -74,11 +65,9 @@ const loginUser = (req, res) => {
 const updateUser = (req, res) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.params.id, { name, about }, { new: true, runValidators: true })
-    .then((user) => checkUserAndSend(user, req, res))
-    .catch((err) => res.status(500).send({
-      message: `${messages.user.isFail}: ${req.params.id}`,
-      error: err.message,
-    }));
+    .orFail(() => new NotFoundError(`${messages.user.id.isNotFound}: ${req.params.id}`))
+    .then((user) => res.send({ data: user }))
+    .catch((err) => res.status(err.statusCode || 500).send({ message: err.message }));
 };
 
 // обновить аватарку пользователя
