@@ -33,34 +33,15 @@ const createUser = (req, res) => {
 
   bcrypt.hash(password, 8)
     .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
+      name, about, avatar, email, password: hash,
     }))
     .then((user) => res.status(201).send({
-      _id: user._id,
-      email: user.email,
-      message: messages.registration.isSuccessful,
+      _id: user._id, email: user.email, message: messages.registration.isSuccessful,
     }))
-    .catch((err) => res.status(409).send({
-      message: messages.registration.isFail,
-      error: err.message,
-    }));
+    .catch((err) => res.status(500).send({ error: err.message }));
 };
 
 // авторизация пользователя
-/* const loginUser = (req, res) => {
-  const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
-    .then((user) => res.send({
-      token: jwt.sign({ _id: user._id }, settings.JWT_KEY, { expiresIn: '7d' }),
-      message: messages.authorization.isSuccessful,
-    }))
-    .catch((err) => res.status(401).send({ error: err.message }));
-}; */
-
 const loginUser = (req, res) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
