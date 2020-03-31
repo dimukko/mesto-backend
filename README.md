@@ -83,11 +83,11 @@ npm run dev
 
 #### Обновление полей `имя` и `о себе` в профиле
 
-`PATCH /users/me/{id}`
+`PATCH /users/me`
 
 #### Обновление поля `аватар` в профиле
 
-`PATCH /users/me/{id}/avatar`
+`PATCH /users/me/avatar`
 
 #### Получение всех карточек
 
