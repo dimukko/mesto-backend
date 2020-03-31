@@ -6,11 +6,18 @@ const { messages } = require('../tools/messages');
 const settings = require('../appconfig');
 const NotFoundError = require('../errors/notFound');
 
+// меняем код статуса в случае ошибки валидации
+const uniqueConflict = (err) => {
+  if (err.errors && err.errors.email && err.errors.email.kind === 'unique') {
+    return 409;
+  } return 500;
+};
+
 // отобразить всех пользователей
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => res.status(500).send({ error: err.message }));
 };
 
 // найти пользователя по id
@@ -18,7 +25,7 @@ const getUserById = (req, res) => {
   User.findById(req.params.id)
     .orFail(() => new NotFoundError(`${messages.user.id.isNotFound}: ${req.params.id}`))
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(err.statusCode || 500).send({ message: err.message }));
+    .catch((err) => res.status(err.statusCode || 500).send({ error: err.message }));
 };
 
 // создать пользователя
@@ -38,7 +45,7 @@ const createUser = (req, res) => {
     .then((user) => res.status(201).send({
       _id: user._id, email: user.email, message: messages.registration.isSuccessful,
     }))
-    .catch((err) => res.status(500).send({ error: err.message }));
+    .catch((err) => res.status(uniqueConflict(err)).send({ error: err.message }));
 };
 
 // авторизация пользователя
@@ -62,7 +69,7 @@ const updateUser = (req, res) => {
   User.findByIdAndUpdate(req.params.id, { name, about }, { new: true, runValidators: true })
     .orFail(() => new NotFoundError(`${messages.user.id.isNotFound}: ${req.params.id}`))
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(err.statusCode || 500).send({ message: err.message }));
+    .catch((err) => res.status(err.statusCode || 500).send({ error: err.message }));
 };
 
 // обновить аватарку пользователя
@@ -71,7 +78,7 @@ const updateUserAvatar = (req, res) => {
   User.findByIdAndUpdate(req.params.id, { avatar }, { new: true, runValidators: true })
     .orFail(() => new NotFoundError(`${messages.user.id.isNotFound}: ${req.params.id}`))
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(err.statusCode || 500).send({ message: err.message }));
+    .catch((err) => res.status(err.statusCode || 500).send({ error: err.message }));
 };
 
 module.exports = {
