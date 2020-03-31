@@ -10,19 +10,15 @@ const handleAuthError = (res) => {
     });
 };
 
-// const extractToken = (header) => header.replace('jwt=', '');
 
 // авторизация и запись пэйлоуда в запрос
 const auth = (req, res, next) => {
-  // const authorization = req.headers.cookie;
   const { jwt: token } = req.cookies;
 
-  // if (!authorization || !authorization.startsWith('jwt=')) {
   if (!jwt) {
     return handleAuthError(res);
   }
 
-  // const token = extractToken(authorization);
   let payload;
 
   try {
