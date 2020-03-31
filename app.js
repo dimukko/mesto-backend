@@ -3,6 +3,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const { auth } = require('./middlewares/auth');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
@@ -17,6 +18,7 @@ const app = express();
 /* парсер запросов */
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 /* подключаемся к базе */
 mongoose.connect(settings.MONGODB_URL, {
