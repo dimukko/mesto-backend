@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "env-cmd -f .env nodemon app.js"
+    "dev": "nodemon app.js"
   },
   "author": "Димка Шичкин",
   "license": "ISC",
@@ -16,10 +16,15 @@
     "nodemon": "^2.0.2"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
     "env-cmd": "^10.1.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.5.4",
     "mongoose": "^5.9.4",
+    "mongoose-unique-validator": "^2.0.3",
     "validator": "^12.2.0"
   }
 }

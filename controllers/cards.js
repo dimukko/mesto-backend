@@ -1,69 +1,53 @@
-const { ObjectId } = require('mongodb');
 const Card = require('../models/card');
+const { messages } = require('../tools/messages');
+const NotFoundError = require('../errors/notFound');
 
-//отобразить все карточки в базе
+// отобразить все карточки в базе
 const getCards = (req, res) => {
   Card.find({})
-      .populate('owner')
-      .then(cards => res.send({ data: cards }))
-      .catch(err => res.status(500).send({ message: err.message }));
+    .populate('owner')
+    .then((cards) => res.send({ data: cards }))
+    .catch((err) => res.status(500).send({ error: err.message }));
 };
 
-//создать новую карточку
+// создать новую карточку
 const createCard = (req, res) => {
   const { name, link } = req.body;
-  if (ObjectId.isValid(req.user._id)) {
-  Card.create({ name, link, owner: req.user._id, likes })
-      .then(card => res.status(201).send({ data: card }))
-      .catch(err => res.status(500).send({ message: `Произошла ошибка при создании карточки: ${err.message}` }));
-    } else {
-      res.status(400).send({ message: 'Что-то не так с пользователем' });
-    }
+  Card.create({ name, link, owner: req.user._id })
+    .then((card) => res.status(201).send({ data: card }))
+    .catch((err) => res.status(500).send({ error: `${messages.card.isFail}: ${err.message}` }));
 };
 
-//удалить карточку по id
+// удалить карточку по id
 const deleteCard = (req, res) => {
-  if (ObjectId.isValid(req.params.id)) {
-  Card.findByIdAndDelete(req.params.id)
-      .then(card => {
-        if (!card) {
-          return res.status(404).send({ message: `Карточки с id: ${req.params.id} не существует`})
-        }
-      res.send({ data: card })})
-      .catch(err => res.status(500).send({ message: `Произошла ошибка при удалении карточки: ${err.message}` }));
-    } else {
-        res.status(400).send({ message: 'Неправильный формат id карточки' });
+  Card.findById(req.params.id)
+    .orFail(() => new NotFoundError(`${messages.card.id.isNotFound}: ${req.params.id}`))
+    .then((card) => {
+      if (card.owner._id.toString() !== req.user._id) {
+        return res.status(403).send({ error: messages.authorization.isRequired });
       }
+      return Card.findByIdAndDelete(req.params.id)
+        .orFail(() => new NotFoundError(`${messages.card.id.isNotFound}: ${req.params.id}`))
+        .then(() => res.send({ data: card }))
+        .catch((err) => res.status(err.statusCode || 500).send({ error: `${messages.card.isFail}: ${err.message}` }));
+    })
+    .catch((err) => res.status(err.statusCode || 500).send({ error: err.message }));
 };
 
-//поставить лайк карточке
+// поставить лайк карточке
 const likeCard = (req, res) => {
-  if (ObjectId.isValid(req.params.id)) {
-    Card.findByIdAndUpdate(req.params.id, { $addToSet: { likes: req.user._id } }, { new: true })
-        .then(card => {
-          if(!card) {
-            return res.status(404).send({ message: `Карточки с id: ${req.params.id} не существует`})
-          }
-        res.send({ data: card })})
-        .catch(err => res.status(500).send({ message: `Произошла ошибка: ${err.message}` }));
-  } else {
-    res.status(400).send({ message: 'Неправильный формат id карточки' });
-  }
+  Card.findByIdAndUpdate(req.params.id, { $addToSet: { likes: req.user._id } }, { new: true })
+    .orFail(() => new NotFoundError(`${messages.card.id.isNotFound}: ${req.params.id}`))
+    .then((card) => res.send({ data: card }))
+    .catch((err) => res.status(err.statusCode || 500).send({ error: `${messages.card.isFail}: ${err.message}` }));
 };
 
-//снять лайк с карточки
+// снять лайк с карточки
 const dislikeCard = (req, res) => {
-  if (ObjectId.isValid(req.params.id)) {
-    Card.findByIdAndUpdate(req.params.id, { $pull: { likes: req.user._id } }, { new: true })
-        .then(card => {
-          if(!card) {
-            return res.status(404).send({ message: `Карточки с id: ${req.params.id} не существует`})
-          }
-        res.send({ data: card })})
-        .catch(err => res.status(500).send({ message: `Произошла ошибка: ${err.message}` }));
-  } else {
-    res.status(400).send({ message: 'Неправильный формат id карточки' });
-  }
+  Card.findByIdAndUpdate(req.params.id, { $pull: { likes: req.user._id } }, { new: true })
+    .orFail(() => new NotFoundError(`${messages.card.id.isNotFound}: ${req.params.id}`))
+    .then((card) => res.send({ data: card }))
+    .catch((err) => res.status(err.statusCode || 500).send({ error: `${messages.card.isFail}: ${err.message}` }));
 };
 
 module.exports = {
@@ -71,5 +55,5 @@ module.exports = {
   createCard,
   deleteCard,
   likeCard,
-  dislikeCard
+  dislikeCard,
 };
