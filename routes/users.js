@@ -7,7 +7,7 @@ const { checkUserObjectId, checkUserObjectIdAndParamId } = require('../middlewar
 router.get('/', getUsers);
 router.get('/:id', checkUserObjectId, getUserById);
 
-router.patch('/:id', checkUserObjectIdAndParamId, updateUser);
-router.patch('/:id/avatar', checkUserObjectIdAndParamId, updateUserAvatar);
+router.patch('/me', checkUserObjectIdAndParamId, updateUser);
+router.patch('/me/avatar', checkUserObjectIdAndParamId, updateUserAvatar);
 
 module.exports = router;
