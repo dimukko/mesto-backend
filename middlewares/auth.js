@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { messages } = require('../tools/messages');
 const settings = require('../appconfig');
+const User = require('../models/user');
 
 const handleAuthError = (res) => {
   res
@@ -29,7 +30,10 @@ const auth = (req, res, next) => {
 
   req.user = payload;
 
-  return next();
+  return User.findById(req.user._id)
+    .orFail()
+    .then(() => next())
+    .catch((err) => res.status(401).send({ error: err.message }));
 };
 
 module.exports = { auth };

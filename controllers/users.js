@@ -66,7 +66,8 @@ const loginUser = (req, res) => {
 // обновить данные пользователя
 const updateUser = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.params.id, { name, about }, { new: true, runValidators: true })
+
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .orFail(() => new NotFoundError(`${messages.user.id.isNotFound}: ${req.params.id}`))
     .then((user) => res.send({ data: user }))
     .catch((err) => res.status(err.statusCode || 500).send({ error: err.message }));
@@ -75,7 +76,7 @@ const updateUser = (req, res) => {
 // обновить аватарку пользователя
 const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.params.id, { avatar }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .orFail(() => new NotFoundError(`${messages.user.id.isNotFound}: ${req.params.id}`))
     .then((user) => res.send({ data: user }))
     .catch((err) => res.status(err.statusCode || 500).send({ error: err.message }));
