@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const { messages } = require('../tools/messages');
 const settings = require('../appconfig');
 const User = require('../models/user');
-const { UnauthorizedErr: NotAuthorizedErr } = require('../errors/index');
+const { NotAuthorizedErr } = require('../errors/index');
 
 // авторизация и запись пэйлоуда в запрос
 const auth = (req, res, next) => {
