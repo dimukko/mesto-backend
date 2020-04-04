@@ -1,13 +1,18 @@
 const router = require('express').Router();
+const { celebrate } = require('celebrate');
 const {
   getUsers, getUserById, updateUser, updateUserAvatar,
 } = require('../controllers/users');
-const { checkUserObjectId } = require('../middlewares/checkIf');
+const {
+  userInfoJoi,
+  userAvatarJoi,
+  objectIdJoi,
+} = require('../celebrate');
 
 router.get('/', getUsers);
-router.get('/:id', checkUserObjectId, getUserById);
+router.get('/:id', celebrate({ params: objectIdJoi }), getUserById);
 
-router.patch('/me', checkUserObjectId, updateUser);
-router.patch('/me/avatar', checkUserObjectId, updateUserAvatar);
+router.patch('/me', celebrate({ params: objectIdJoi, body: userInfoJoi }), updateUser);
+router.patch('/me/avatar', celebrate({ params: objectIdJoi, body: userAvatarJoi }), updateUserAvatar);
 
 module.exports = router;
