@@ -2,22 +2,14 @@ const jwt = require('jsonwebtoken');
 const { messages } = require('../tools/messages');
 const settings = require('../appconfig');
 const User = require('../models/user');
-
-const handleAuthError = (res) => {
-  res
-    .status(401)
-    .send({
-      message: messages.authorization.isFailed,
-    });
-};
-
+const { UnauthorizedErr } = require('../errors/index');
 
 // авторизация и запись пэйлоуда в запрос
 const auth = (req, res, next) => {
   const { jwt: token } = req.cookies;
 
   if (!jwt) {
-    return handleAuthError(res);
+    return next(new UnauthorizedErr(messages.authorization.isRequired));
   }
 
   let payload;
@@ -25,7 +17,7 @@ const auth = (req, res, next) => {
   try {
     payload = jwt.verify(token, settings.JWT_KEY);
   } catch (err) {
-    return handleAuthError(res);
+    return next(new UnauthorizedErr(messages.authorization.isRequired));
   }
 
   req.user = payload;
@@ -33,7 +25,7 @@ const auth = (req, res, next) => {
   return User.findById(req.user._id)
     .orFail()
     .then(() => next())
-    .catch((err) => res.status(401).send({ error: err.message }));
+    .catch((err) => next(new UnauthorizedErr({ error: err.message })));
 };
 
 module.exports = { auth };

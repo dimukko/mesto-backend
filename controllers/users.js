@@ -4,32 +4,29 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { messages } = require('../tools/messages');
 const settings = require('../appconfig');
-const NotFoundError = require('../errors/notFound');
-
-// меняем код статуса в случае ошибки валидации
-const uniqueConflict = (err) => {
-  if (err.errors && err.errors.email && err.errors.email.kind === 'unique') {
-    return 409;
-  } return 500;
-};
+const {
+  BadRequestErr,
+  NotFoundErr,
+  NotAuthorizedErr,
+} = require('../errors');
 
 // отобразить всех пользователей
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => res.status(500).send({ error: err.message }));
+    .catch(next);
 };
 
 // найти пользователя по id
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   User.findById(req.params.id)
-    .orFail(() => new NotFoundError(`${messages.user.id.isNotFound}: ${req.params.id}`))
+    .orFail(() => new NotFoundErr(`${messages.user.id.isNotFound}: ${req.params.id}`))
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(err.statusCode || 500).send({ error: err.message }));
+    .catch(next);
 };
 
 // создать пользователя
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -45,11 +42,11 @@ const createUser = (req, res) => {
     .then((user) => res.status(201).send({
       _id: user._id, email: user.email, message: messages.registration.isSuccessful,
     }))
-    .catch((err) => res.status(uniqueConflict(err)).send({ error: err.message }));
+    .catch((err) => next(new BadRequestErr(err.message)));
 };
 
 // авторизация пользователя
-const loginUser = (req, res) => {
+const loginUser = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -60,26 +57,24 @@ const loginUser = (req, res) => {
       });
       res.send({ message: messages.authorization.isSuccessful });
     })
-    .catch((err) => res.status(401).send({ error: err.message }));
+    .catch((err) => next(new NotAuthorizedErr(err.message)));
 };
 
 // обновить данные пользователя
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail(() => new NotFoundError(`${messages.user.id.isNotFound}: ${req.params.id}`))
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(err.statusCode || 500).send({ error: err.message }));
+    .catch((err) => next(new BadRequestErr(err.message)));
 };
 
 // обновить аватарку пользователя
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail(() => new NotFoundError(`${messages.user.id.isNotFound}: ${req.params.id}`))
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(err.statusCode || 500).send({ error: err.message }));
+    .catch((err) => next(new BadRequestErr(err.message)));
 };
 
 module.exports = {
