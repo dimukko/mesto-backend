@@ -50,7 +50,7 @@ const loginUser = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      res.cookie('jwt', jwt.sign({ _id: user._id }, settings.JWT_KEY), {
+      res.cookie('jwt', jwt.sign({ _id: user._id }, settings.NODE_ENV === 'production' ? settings.JWT_SECRET : 'dev-secret'), {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
         sameSite: true,

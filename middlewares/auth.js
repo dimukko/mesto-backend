@@ -15,7 +15,7 @@ const auth = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, settings.JWT_KEY);
+    payload = jwt.verify(token, settings.JWT_SECRET);
   } catch (err) {
     return next(new UnauthorizedErr(messages.authorization.isRequired));
   }

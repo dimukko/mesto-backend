@@ -1,18 +1,19 @@
 /* eslint-disable import/no-unresolved */
 /* подключаем модули */
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const { celebrate } = require('celebrate');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
+const settings = require('./appconfig');
 const { auth } = require('./middlewares/auth');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const error = require('./routes/error');
 const { loginJoi, registrationJoi } = require('./celebrate');
 const { loginUser, createUser } = require('./controllers/users');
-const settings = require('./appconfig');
 const { errorHandler } = require('./middlewares/defaultErrorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logs');
 
@@ -35,6 +36,13 @@ mongoose.connect(settings.MONGODB_URL, {
 
 /* логгирование */
 app.use(requestLogger);
+
+/* тест краша сервера */
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 /* роуты */
 app.post('/signin', celebrate({ body: loginJoi }), loginUser);
