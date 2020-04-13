@@ -1,66 +1,27 @@
-/* eslint-disable import/no-unresolved */
 /* подключаем модули */
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const { celebrate } = require('celebrate');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const { errors } = require('celebrate');
-const settings = require('./appconfig');
-const { auth } = require('./middlewares/auth');
-const users = require('./routes/users');
-const cards = require('./routes/cards');
-const error = require('./routes/error');
-const { loginJoi, registrationJoi } = require('./celebrate');
-const { loginUser, createUser } = require('./controllers/users');
-const { errorHandler } = require('./middlewares/defaultErrorHandler');
-const { requestLogger, errorLogger } = require('./middlewares/logs');
 
+const settings = require('./appconfig');
+const routes = require('./routes/index');
 
 const port = settings.PORT;
-const app = express();
 
-/* парсер запросов */
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
-
-/* подключаемся к базе */
+/* подключаемся к базе и запускаем приложение */
 mongoose.connect(settings.MONGODB_URL, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
   useUnifiedTopology: true,
-});
-
-/* логгирование */
-app.use(requestLogger);
-
-/* тест краша сервера */
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
-
-/* роуты */
-app.post('/signin', celebrate({ body: loginJoi }), loginUser);
-app.post('/signup', celebrate({ body: registrationJoi }), createUser);
-
-app.use(auth);
-app.use('/users', users);
-app.use('/cards', cards);
-
-/* логгер ошибок */
-app.use(errorLogger);
-
-/* обработчики ошибок */
-app.use(error);
-app.use(errors());
-app.use(errorHandler);
-
-/* сообщаем порт */
-app.listen(port, () => {
-  console.log(`Используемый порт: ${port}`);
-});
+})
+  .then(() => {
+    console.log('Database connected');
+    const app = express();
+    app.listen(port, () => {
+      console.log(`Используемый порт: ${port}`);
+    });
+    app.use(routes);
+  }).catch((err) => {
+    console.log('Ошибка подключения к базе данных:', err);
+  });

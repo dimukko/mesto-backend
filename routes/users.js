@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { celebrate } = require('celebrate');
+const { auth } = require('../middlewares/auth');
 const {
   getUsers, getUserById, updateUser, updateUserAvatar,
 } = require('../controllers/users');
@@ -8,6 +9,8 @@ const {
   userAvatarJoi,
   objectIdJoi,
 } = require('../celebrate');
+
+router.use(auth);
 
 router.get('/', getUsers);
 router.get('/:id', celebrate({ params: objectIdJoi }), getUserById);
