@@ -11,7 +11,7 @@
 Клонируйте проект на компьютер:
 
 ```
-git clone https://github.com/kirpinev/backend-mesto.git
+git clone https://github.com/dimukko/mesto-backend.git
 ```
 
 Установите зависимости:
